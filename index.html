@@ -1,89 +1,59 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ColorMeter xyY → HEX Converter</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <main class="app">
-      <header class="app__header">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>xyY → Hex カラーコード変換</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>xyY → Hex カラーコード変換</h1>
+      <p class="subtitle">macOS Digital Color Meter の xyY 値を Hex に変換します。</p>
+    </header>
+
+    <section class="panel">
+      <div class="row">
+        <label for="format">入力フォーマット</label>
+        <select id="format" disabled>
+          <option value="xyy" selected>xyY (CIE 1931) - Digital Color Meter</option>
+        </select>
+        <span class="hint">※将来的に他フォーマットを追加予定</span>
+      </div>
+
+      <div class="grid">
+        <label>
+          x
+          <input id="input-x" type="number" inputmode="decimal" step="0.0001" min="0" max="1" placeholder="0.3127" />
+        </label>
+        <label>
+          y
+          <input id="input-y" type="number" inputmode="decimal" step="0.0001" min="0" max="1" placeholder="0.3290" />
+        </label>
+        <label>
+          Y
+          <input id="input-Y" type="number" inputmode="decimal" step="0.01" min="0" max="1" placeholder="0.50" />
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="convert" type="button">変換</button>
+        <button id="copy" type="button" class="secondary" disabled>Hex をコピー</button>
+      </div>
+
+      <div class="result" aria-live="polite">
         <div>
-          <p class="app__eyebrow">GitHub Pages 用ワンページアプリ</p>
-          <h1>ColorMeter xyY → HEX Converter</h1>
-          <p class="app__lead">
-            macOSのDigital Color Meterで取得したCIE 1931色度座標 (xyY) を、
-            すぐにHEXコードへ変換してコピーできます。
-          </p>
+          <span class="label">Hex</span>
+          <output id="hex-value">#------</output>
         </div>
-      </header>
+        <div class="swatch" id="swatch" aria-label="変換結果の色見本"></div>
+      </div>
 
-      <section class="panel">
-        <div class="panel__header">
-          <h2>入力</h2>
-          <p>最初は「Digital Color Meter (xyY)」向けに最適化しています。</p>
-        </div>
-        <div class="panel__body">
-          <label class="field">
-            <span>変換モード</span>
-            <select id="mode" disabled>
-              <option value="xyy">Digital Color Meter (xyY)</option>
-            </select>
-            <small>将来的に他のカラー形式も追加予定です。</small>
-          </label>
-          <div class="grid">
-            <label class="field">
-              <span>x</span>
-              <input id="input-x" type="number" inputmode="decimal" step="0.0001" value="0.3127" />
-            </label>
-            <label class="field">
-              <span>y</span>
-              <input id="input-y" type="number" inputmode="decimal" step="0.0001" value="0.329" />
-            </label>
-            <label class="field">
-              <span>Y</span>
-              <input id="input-Y" type="number" inputmode="decimal" step="0.01" value="50" />
-              <small>0〜1 または 0〜100 で入力してください。</small>
-            </label>
-          </div>
-          <p id="validation" class="validation" role="status" aria-live="polite"></p>
-        </div>
-      </section>
+      <div class="status" id="status"></div>
+    </section>
+  </main>
 
-      <section class="panel panel--result">
-        <div class="panel__header">
-          <h2>結果</h2>
-          <p>HEXコードをコピーして、そのまま保存できます。</p>
-        </div>
-        <div class="panel__body">
-          <div class="result">
-            <div class="result__swatch" id="swatch" aria-hidden="true"></div>
-            <div class="result__fields">
-              <label class="field">
-                <span>HEX</span>
-                <input id="output-hex" type="text" readonly value="#FFFFFF" />
-              </label>
-              <button id="copy" class="button">コピー</button>
-              <p id="copy-status" class="copy-status" role="status" aria-live="polite"></p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel panel--notes">
-        <div class="panel__header">
-          <h2>将来の拡張</h2>
-        </div>
-        <div class="panel__body">
-          <ul>
-            <li>他の色空間やソフトウェアから取得した値を追加できる構成。</li>
-            <li>入力形式ごとのガイドや変換履歴の保存を追加可能。</li>
-          </ul>
-        </div>
-      </section>
-    </main>
-
-    <script src="app.js"></script>
-  </body>
+  <script src="script.js"></script>
+</body>
 </html>
