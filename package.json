@@ -1,0 +1,12 @@
+{
+  "name": "colormeter-xyy-converter",
+  "version": "0.1.0",
+  "description": "A color converter tool for xyY color space",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["color", "converter", "xyY"],
+  "author": "",
+  "license": "MIT"
+}
