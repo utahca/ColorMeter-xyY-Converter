@@ -4,6 +4,8 @@ const inputs = {
   Y: document.getElementById('input-Y')
 };
 const bulkInput = document.getElementById('bulk-input');
+const formatSelect = document.getElementById('format');
+const formatHint = document.getElementById('format-hint');
 const convertButton = document.getElementById('convert');
 const copyButton = document.getElementById('copy');
 const hexValue = document.getElementById('hex-value');
@@ -11,6 +13,21 @@ const swatch = document.getElementById('swatch');
 const status = document.getElementById('status');
 
 const STORAGE_KEY = 'xyy-last-values';
+
+const FORMAT_CONFIG = {
+  srgb: {
+    hint: 'sRGB の xyY を想定しています。Y は 0〜100（または 0〜1）で入力してください。',
+    placeholders: { x: '0.3127', y: '0.3290', Y: '50' },
+    bulkPlaceholder: '0.3127 0.3290 50',
+    normalizeY: (value) => (value > 1 ? value / 100 : value)
+  },
+  xyy: {
+    hint: 'Digital Color Meter の xyY を想定しています。Y は 0〜1 で入力してください。',
+    placeholders: { x: '0.3127', y: '0.3290', Y: '0.50' },
+    bulkPlaceholder: '0.3127 0.3290 0.50',
+    normalizeY: (value) => value
+  }
+};
 
 const clamp = (value, min = 0, max = 1) => Math.min(Math.max(value, min), max);
 
@@ -81,8 +98,8 @@ const readValues = () => ({
 
 const valuesAreValid = ({ x, y, Y }) => Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(Y);
 
-const saveValues = (values, hex) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...values, hex }));
+const saveValues = (values, hex, format) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...values, hex, format }));
 };
 
 const loadValues = () => {
@@ -103,6 +120,22 @@ const applyResult = (hex) => {
   copyButton.disabled = false;
 };
 
+const applyFormat = (formatKey) => {
+  const format = FORMAT_CONFIG[formatKey] ?? FORMAT_CONFIG.srgb;
+  formatSelect.value = formatKey;
+  inputs.x.placeholder = format.placeholders.x;
+  inputs.y.placeholder = format.placeholders.y;
+  inputs.Y.placeholder = format.placeholders.Y;
+  if (bulkInput) {
+    bulkInput.placeholder = format.bulkPlaceholder;
+  }
+  if (formatHint) {
+    formatHint.textContent = format.hint;
+  }
+};
+
+const getFormatConfig = () => FORMAT_CONFIG[formatSelect.value] ?? FORMAT_CONFIG.srgb;
+
 const convert = ({ silent = false } = {}) => {
   const values = readValues();
   if (!valuesAreValid(values)) {
@@ -113,12 +146,14 @@ const convert = ({ silent = false } = {}) => {
     return;
   }
 
-  const { X, Y, Z } = xyYToXYZ(values.x, values.y, values.Y);
+  const { normalizeY } = getFormatConfig();
+  const normalizedY = normalizeY(values.Y);
+  const { X, Y, Z } = xyYToXYZ(values.x, values.y, normalizedY);
   const rgb = xyzToSRGB({ X, Y, Z });
   const hex = toHex(rgb);
 
   applyResult(hex);
-  saveValues(values, hex);
+  saveValues(values, hex, formatSelect.value);
   updateStatus(silent ? '' : '変換結果を保存しました。');
 };
 
@@ -134,6 +169,13 @@ const copyHex = async () => {
 
 convertButton.addEventListener('click', convert);
 copyButton.addEventListener('click', copyHex);
+
+if (formatSelect) {
+  formatSelect.addEventListener('change', () => {
+    applyFormat(formatSelect.value);
+    convert({ silent: true });
+  });
+}
 
 Object.values(inputs).forEach((input) => {
   input.addEventListener('input', () => {
@@ -164,6 +206,7 @@ if (bulkInput) {
 }
 
 const stored = loadValues();
+applyFormat(stored?.format ?? 'srgb');
 if (stored) {
   inputs.x.value = stored.x;
   inputs.y.value = stored.y;
