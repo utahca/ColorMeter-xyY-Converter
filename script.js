@@ -3,6 +3,7 @@ const inputs = {
   y: document.getElementById('input-y'),
   Y: document.getElementById('input-Y')
 };
+const bulkInput = document.getElementById('bulk-input');
 const convertButton = document.getElementById('convert');
 const copyButton = document.getElementById('copy');
 const hexValue = document.getElementById('hex-value');
@@ -54,6 +55,24 @@ const updateStatus = (message) => {
   status.textContent = message;
 };
 
+const parseBulkInput = (text) => {
+  const tokens = text.trim().split(/[\s,]+/).filter(Boolean);
+  if (tokens.length < 3) {
+    return null;
+  }
+  const [x, y, Y] = tokens.slice(0, 3).map((value) => Number.parseFloat(value));
+  if (![x, y, Y].every(Number.isFinite)) {
+    return null;
+  }
+  return { x, y, Y };
+};
+
+const applyValues = ({ x, y, Y }) => {
+  inputs.x.value = x;
+  inputs.y.value = y;
+  inputs.Y.value = Y;
+};
+
 const readValues = () => ({
   x: Number.parseFloat(inputs.x.value),
   y: Number.parseFloat(inputs.y.value),
@@ -84,10 +103,13 @@ const applyResult = (hex) => {
   copyButton.disabled = false;
 };
 
-const convert = () => {
+const convert = ({ silent = false } = {}) => {
   const values = readValues();
   if (!valuesAreValid(values)) {
-    updateStatus('x, y, Y の値を入力してください。');
+    const hasAnyInput = Object.values(inputs).some((input) => input.value.trim() !== '');
+    if (!silent && hasAnyInput) {
+      updateStatus('x, y, Y の値を入力してください。');
+    }
     return;
   }
 
@@ -97,7 +119,7 @@ const convert = () => {
 
   applyResult(hex);
   saveValues(values, hex);
-  updateStatus('変換結果を保存しました。');
+  updateStatus(silent ? '' : '変換結果を保存しました。');
 };
 
 const copyHex = async () => {
@@ -115,9 +137,31 @@ copyButton.addEventListener('click', copyHex);
 
 Object.values(inputs).forEach((input) => {
   input.addEventListener('input', () => {
-    updateStatus('');
+    convert({ silent: true });
   });
 });
+
+if (bulkInput) {
+  const handleBulkInput = () => {
+    const raw = bulkInput.value;
+    if (!raw.trim()) {
+      updateStatus('');
+      return;
+    }
+    const parsed = parseBulkInput(raw);
+    if (!parsed) {
+      updateStatus('x y Y を空白区切りで入力してください。');
+      return;
+    }
+    applyValues(parsed);
+    convert({ silent: true });
+  };
+
+  bulkInput.addEventListener('input', handleBulkInput);
+  bulkInput.addEventListener('paste', () => {
+    requestAnimationFrame(handleBulkInput);
+  });
+}
 
 const stored = loadValues();
 if (stored) {
