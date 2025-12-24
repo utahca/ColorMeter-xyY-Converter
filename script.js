@@ -103,10 +103,13 @@ const applyResult = (hex) => {
   copyButton.disabled = false;
 };
 
-const convert = () => {
+const convert = ({ silent = false } = {}) => {
   const values = readValues();
   if (!valuesAreValid(values)) {
-    updateStatus('x, y, Y の値を入力してください。');
+    const hasAnyInput = Object.values(inputs).some((input) => input.value.trim() !== '');
+    if (!silent && hasAnyInput) {
+      updateStatus('x, y, Y の値を入力してください。');
+    }
     return;
   }
 
@@ -116,7 +119,7 @@ const convert = () => {
 
   applyResult(hex);
   saveValues(values, hex);
-  updateStatus('変換結果を保存しました。');
+  updateStatus(silent ? '' : '変換結果を保存しました。');
 };
 
 const copyHex = async () => {
@@ -134,12 +137,12 @@ copyButton.addEventListener('click', copyHex);
 
 Object.values(inputs).forEach((input) => {
   input.addEventListener('input', () => {
-    updateStatus('');
+    convert({ silent: true });
   });
 });
 
 if (bulkInput) {
-  bulkInput.addEventListener('input', () => {
+  const handleBulkInput = () => {
     const raw = bulkInput.value;
     if (!raw.trim()) {
       updateStatus('');
@@ -151,7 +154,12 @@ if (bulkInput) {
       return;
     }
     applyValues(parsed);
-    convert();
+    convert({ silent: true });
+  };
+
+  bulkInput.addEventListener('input', handleBulkInput);
+  bulkInput.addEventListener('paste', () => {
+    requestAnimationFrame(handleBulkInput);
   });
 }
 
