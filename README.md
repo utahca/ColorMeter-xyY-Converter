@@ -3,6 +3,13 @@
 macOS の Digital Color Meter で取得できる **xyY (CIE 1931)** の値を、
 Web 上で **Hex カラーコード**に変換するためのシンプルなツールです。
 
+## プレビュー
+GitHub Pages で公開したページは、以下の URL で確認できます（`<YOUR_GITHUB_USERNAME>` を置き換えてください）。
+
+```
+https://<YOUR_GITHUB_USERNAME>.github.io/ColorMeter-xyY-Converter/
+```
+
 ## 特長
 - xyY (CIE 1931) → Hex の変換
 - 変換結果のコピー
