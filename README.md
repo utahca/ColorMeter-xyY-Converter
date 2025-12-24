@@ -7,7 +7,7 @@ Web 上で **Hex カラーコード**に変換するためのシンプルなツ�
 GitHub Pages で公開したページは、以下の URL で確認できます（`<YOUR_GITHUB_USERNAME>` を置き換えてください）。
 
 ```
-https://<YOUR_GITHUB_USERNAME>.github.io/ColorMeter-xyY-Converter/
+https://utahca.github.io/ColorMeter-xyY-Converter/
 ```
 
 ## 特長
