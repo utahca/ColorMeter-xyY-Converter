@@ -48,13 +48,19 @@ h1 {
 }
 
 select,
-input {
+input,
+textarea {
   width: 100%;
   padding: 12px;
   border-radius: 10px;
   border: 1px solid #d8d8df;
   font-size: 1rem;
   background: #fff;
+}
+
+textarea {
+  min-height: 72px;
+  resize: vertical;
 }
 
 .hint {
