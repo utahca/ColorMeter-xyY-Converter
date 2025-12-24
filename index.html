@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>xyY → Hex カラーコード変換</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>xyY → Hex カラーコード変換</h1>
+      <p class="subtitle">macOS Digital Color Meter の xyY 値を Hex に変換します。</p>
+    </header>
+
+    <section class="panel">
+      <div class="row">
+        <label for="format">入力フォーマット</label>
+        <select id="format" disabled>
+          <option value="xyy" selected>xyY (CIE 1931) - Digital Color Meter</option>
+        </select>
+        <span class="hint">※将来的に他フォーマットを追加予定</span>
+      </div>
+
+      <div class="grid">
+        <label>
+          x
+          <input id="input-x" type="number" inputmode="decimal" step="0.0001" min="0" max="1" placeholder="0.3127" />
+        </label>
+        <label>
+          y
+          <input id="input-y" type="number" inputmode="decimal" step="0.0001" min="0" max="1" placeholder="0.3290" />
+        </label>
+        <label>
+          Y
+          <input id="input-Y" type="number" inputmode="decimal" step="0.01" min="0" max="1" placeholder="0.50" />
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="convert" type="button">変換</button>
+        <button id="copy" type="button" class="secondary" disabled>Hex をコピー</button>
+      </div>
+
+      <div class="result" aria-live="polite">
+        <div>
+          <span class="label">Hex</span>
+          <output id="hex-value">#------</output>
+        </div>
+        <div class="swatch" id="swatch" aria-label="変換結果の色見本"></div>
+      </div>
+
+      <div class="status" id="status"></div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
