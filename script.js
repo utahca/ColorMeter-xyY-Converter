@@ -81,6 +81,13 @@ const toHex = ({ r, g, b }) => {
   return `#${formatHex(rByte)}${formatHex(gByte)}${formatHex(bByte)}`;
 };
 
+const srgbChannelsToHex = ({ r, g, b }) => {
+  const rByte = Math.round(clamp(r) * 255);
+  const gByte = Math.round(clamp(g) * 255);
+  const bByte = Math.round(clamp(b) * 255);
+  return `#${formatHex(rByte)}${formatHex(gByte)}${formatHex(bByte)}`;
+};
+
 const updateStatus = (message) => {
   status.textContent = message;
 };
@@ -160,10 +167,10 @@ const getFormatConfig = () => FORMAT_CONFIG[formatSelect.value] ?? FORMAT_CONFIG
 
 const convertValuesToHex = (values, formatConfig) => {
   if (formatConfig === FORMAT_CONFIG.srgb_rgb) {
-    return toHex({
-      r: clamp(values.x),
-      g: clamp(values.y),
-      b: clamp(values.Y)
+    return srgbChannelsToHex({
+      r: values.x,
+      g: values.y,
+      b: values.Y
     });
   }
 
