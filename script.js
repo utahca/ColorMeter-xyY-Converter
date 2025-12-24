@@ -6,6 +6,11 @@ const inputs = {
 const bulkInput = document.getElementById('bulk-input');
 const formatSelect = document.getElementById('format');
 const formatHint = document.getElementById('format-hint');
+const labels = {
+  x: document.getElementById('label-x'),
+  y: document.getElementById('label-y'),
+  Y: document.getElementById('label-Y')
+};
 const convertButton = document.getElementById('convert');
 const copyButton = document.getElementById('copy');
 const hexValue = document.getElementById('hex-value');
@@ -17,12 +22,20 @@ const STORAGE_KEY = 'xyy-last-values';
 const FORMAT_CONFIG = {
   srgb: {
     hint: 'sRGB の xyY を想定しています。Y は 0〜100（または 0〜1）で入力してください。',
+    labels: { x: 'x', y: 'y', Y: 'Y' },
     placeholders: { x: '0.3127', y: '0.3290', Y: '50' },
     bulkPlaceholder: '0.3127 0.3290 50',
     normalizeY: (value) => (value > 1 ? value / 100 : value)
   },
+  srgb_rgb: {
+    hint: 'Digital Color Meter の sRGB (0〜1) 値を貼り付ける場合はこちら。',
+    labels: { x: 'R', y: 'G', Y: 'B' },
+    placeholders: { x: '0.09', y: '0.41', Y: '1.00' },
+    bulkPlaceholder: '0.092 0.413 0.998'
+  },
   xyy: {
     hint: 'Digital Color Meter の xyY を想定しています。Y は 0〜1 で入力してください。',
+    labels: { x: 'x', y: 'y', Y: 'Y' },
     placeholders: { x: '0.3127', y: '0.3290', Y: '0.50' },
     bulkPlaceholder: '0.3127 0.3290 0.50',
     normalizeY: (value) => value
@@ -123,6 +136,15 @@ const applyResult = (hex) => {
 const applyFormat = (formatKey) => {
   const format = FORMAT_CONFIG[formatKey] ?? FORMAT_CONFIG.srgb;
   formatSelect.value = formatKey;
+  if (labels.x) {
+    labels.x.textContent = format.labels.x;
+  }
+  if (labels.y) {
+    labels.y.textContent = format.labels.y;
+  }
+  if (labels.Y) {
+    labels.Y.textContent = format.labels.Y;
+  }
   inputs.x.placeholder = format.placeholders.x;
   inputs.y.placeholder = format.placeholders.y;
   inputs.Y.placeholder = format.placeholders.Y;
@@ -136,6 +158,21 @@ const applyFormat = (formatKey) => {
 
 const getFormatConfig = () => FORMAT_CONFIG[formatSelect.value] ?? FORMAT_CONFIG.srgb;
 
+const convertValuesToHex = (values, formatConfig) => {
+  if (formatConfig === FORMAT_CONFIG.srgb_rgb) {
+    return toHex({
+      r: clamp(values.x),
+      g: clamp(values.y),
+      b: clamp(values.Y)
+    });
+  }
+
+  const normalizedY = formatConfig.normalizeY(values.Y);
+  const { X, Y, Z } = xyYToXYZ(values.x, values.y, normalizedY);
+  const rgb = xyzToSRGB({ X, Y, Z });
+  return toHex(rgb);
+};
+
 const convert = ({ silent = false } = {}) => {
   const values = readValues();
   if (!valuesAreValid(values)) {
@@ -146,11 +183,8 @@ const convert = ({ silent = false } = {}) => {
     return;
   }
 
-  const { normalizeY } = getFormatConfig();
-  const normalizedY = normalizeY(values.Y);
-  const { X, Y, Z } = xyYToXYZ(values.x, values.y, normalizedY);
-  const rgb = xyzToSRGB({ X, Y, Z });
-  const hex = toHex(rgb);
+  const formatConfig = getFormatConfig();
+  const hex = convertValuesToHex(values, formatConfig);
 
   applyResult(hex);
   saveValues(values, hex, formatSelect.value);
